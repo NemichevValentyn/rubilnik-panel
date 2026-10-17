@@ -1,6 +1,6 @@
 import * as THREE from "../../lib/three/three.module.js";
 import { OrbitControls } from "../../lib/three/controls/OrbitControls.js";
-import { BREAKERS, PANEL_INFO } from "./panel-data.js?v=10";
+import { BREAKERS, PANEL_INFO } from "./panel-data.js?v=11";
 
 const MCB_W = 0.175;
 const MCB_H = 0.92;
@@ -368,12 +368,13 @@ export class PanelScene {
     doorGeo.translate(doorW / 2, 0, 0);
 
     // Прозоре димчасте скло ПЕРЕД автоматами (Standard — стабільно на iOS)
+    // Світле прозоре скло — темне «фарбувало» білий корпус у сірий
     const doorMat = new THREE.MeshStandardMaterial({
-      color: 0x3a5570,
-      roughness: 0.08,
-      metalness: 0.1,
+      color: 0xdde7f0,
+      roughness: 0.06,
+      metalness: 0.05,
       transparent: true,
-      opacity: 0.38,
+      opacity: 0.28,
       depthWrite: true,
     });
 
