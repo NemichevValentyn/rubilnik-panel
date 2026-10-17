@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta name="theme-color" content="#d8d4ce" />
+  <title>QR‑код — Rubilnik</title>
+  <link rel="stylesheet" href="css/panel.css?v=6" />
+</head>
+<body>
+  <div id="lock-screen" class="lock-screen">
+    <div class="lock-card">
+      <h1>Доступ лише через QR</h1>
+      <p>Ця сторінка теж захищена. Відкрий її після сканування основного QR біля щитка.</p>
+    </div>
+  </div>
+
+  <div class="qr-page" id="qr-page" hidden>
+    <div class="qr-card">
+      <h1>QR для щитка</h1>
+      <p>Надрукуй цей QR і повесь біля щитка. У ньому вже є секретний ключ.</p>
+      <div id="qr-box" aria-label="QR код">
+        <img id="qr-img" alt="QR код на сторінку щитка" width="240" height="240" />
+      </div>
+      <div class="qr-url" id="qr-url"></div>
+      <div class="qr-actions">
+        <a class="panel-btn panel-btn-primary" id="link-panel" href="#">Відкрити щиток</a>
+        <button type="button" class="panel-btn" id="btn-copy-url">Скопіювати посилання</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/panel/qr-page.js?v=6"></script>
+</body>
+</html>
