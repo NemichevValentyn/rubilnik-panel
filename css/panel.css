@@ -1,11 +1,11 @@
 :root {
-  --bg: #d8d4ce;
-  --ink: #1c1b19;
-  --muted: #5c574f;
-  --card: rgba(255, 252, 248, 0.92);
-  --accent: #c45c26;
-  --line: rgba(28, 27, 25, 0.12);
-  --shadow: 0 12px 40px rgba(40, 30, 20, 0.18);
+  --bg: #e8f0f4;
+  --ink: #1a2430;
+  --muted: #4a5a6a;
+  --card: rgba(255, 252, 248, 0.94);
+  --accent: #e85d04;
+  --line: rgba(28, 40, 55, 0.12);
+  --shadow: 0 12px 40px rgba(30, 50, 70, 0.16);
   --font-display: "Segoe UI", "Helvetica Neue", sans-serif;
 }
 

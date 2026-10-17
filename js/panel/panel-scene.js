@@ -1,6 +1,6 @@
 import * as THREE from "../../lib/three/three.module.js";
 import { OrbitControls } from "../../lib/three/controls/OrbitControls.js";
-import { BREAKERS, PANEL_INFO } from "./panel-data.js?v=7";
+import { BREAKERS, PANEL_INFO } from "./panel-data.js?v=8";
 
 const MCB_W = 0.175;
 const MCB_H = 0.92;
@@ -67,10 +67,12 @@ export class PanelScene {
       powerPreference: "high-performance",
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    this.renderer.setClearColor(0xf0ebe3, 1);
+    this.renderer.setClearColor(0xe8f0f4, 1);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.15;
 
     this.camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
     this.camera.position.set(0.05, 0.05, CAM_Z_CLOSED);
@@ -78,25 +80,41 @@ export class PanelScene {
 
   _initScene() {
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0xf0ebe3, 14, 26);
+    this.scene.fog = new THREE.Fog(0xe8f0f4, 14, 26);
+    this.scene.background = new THREE.Color(0xe8f0f4);
 
     const wall = new THREE.Mesh(
       new THREE.PlaneGeometry(16, 10),
       new THREE.MeshStandardMaterial({
-        color: 0xf7f1e8,
-        roughness: 0.95,
+        color: 0xfff6ec,
+        roughness: 0.9,
         metalness: 0.02,
       })
     );
     wall.position.z = -0.62;
     wall.receiveShadow = true;
     this.scene.add(wall);
+
+    // Soft colored floor wash
+    const wash = new THREE.Mesh(
+      new THREE.PlaneGeometry(10, 4),
+      new THREE.MeshStandardMaterial({
+        color: 0xd4e8f0,
+        roughness: 1,
+        metalness: 0,
+        transparent: true,
+        opacity: 0.35,
+      })
+    );
+    wash.rotation.x = -Math.PI / 2;
+    wash.position.set(0, -1.6, 1.2);
+    this.scene.add(wash);
   }
 
   _initLights() {
-    this.scene.add(new THREE.HemisphereLight(0xfff8f0, 0x9a9690, 0.95));
+    this.scene.add(new THREE.HemisphereLight(0xfff4e8, 0x6a8aaa, 1.05));
 
-    const key = new THREE.DirectionalLight(0xfff4e8, 1.4);
+    const key = new THREE.DirectionalLight(0xfff0dd, 1.55);
     key.position.set(1.8, 4.2, 5);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
@@ -108,9 +126,13 @@ export class PanelScene {
     key.shadow.camera.bottom = -4;
     this.scene.add(key);
 
-    const fill = new THREE.DirectionalLight(0xd0d8e4, 0.45);
+    const fill = new THREE.DirectionalLight(0x8ec8ff, 0.65);
     fill.position.set(-3.5, 1.2, 2.5);
     this.scene.add(fill);
+
+    const accent = new THREE.PointLight(0xffaa55, 0.55, 8);
+    accent.position.set(0.8, 0.4, 2.2);
+    this.scene.add(accent);
   }
 
   _initControls() {
@@ -147,14 +169,14 @@ export class PanelScene {
     const boxD = 0.78;
 
     const plastic = new THREE.MeshStandardMaterial({
-      color: 0xf7f5f2,
-      roughness: 0.48,
-      metalness: 0.04,
+      color: 0xfffaf4,
+      roughness: 0.38,
+      metalness: 0.06,
     });
     const plasticInner = new THREE.MeshStandardMaterial({
-      color: 0xefedea,
-      roughness: 0.62,
-      metalness: 0.03,
+      color: 0xe8eef5,
+      roughness: 0.55,
+      metalness: 0.04,
     });
 
     // Outer housing
@@ -188,9 +210,9 @@ export class PanelScene {
 
     // Inner lip around recess
     const lipMat = new THREE.MeshStandardMaterial({
-      color: 0xfaf8f5,
-      roughness: 0.4,
-      metalness: 0.05,
+      color: 0xffffff,
+      roughness: 0.32,
+      metalness: 0.08,
     });
     const lip = new THREE.Mesh(
       new THREE.BoxGeometry(boxW - 0.14, boxH - 0.18, 0.06),
@@ -199,10 +221,10 @@ export class PanelScene {
     lip.position.z = 0.28;
     this.root.add(lip);
 
-    // Cutout illusion — darker plane behind devices
+    // Cutout illusion — cooler tint behind devices
     const cut = new THREE.Mesh(
       new THREE.PlaneGeometry(boxW - 0.32, boxH - 0.4),
-      new THREE.MeshStandardMaterial({ color: 0xe4e2de, roughness: 0.85 })
+      new THREE.MeshStandardMaterial({ color: 0xd5e0ea, roughness: 0.8 })
     );
     cut.position.z = 0.12;
     this.root.add(cut);
@@ -211,9 +233,9 @@ export class PanelScene {
     const din = new THREE.Mesh(
       new THREE.BoxGeometry(railW + 0.2, 0.09, 0.07),
       new THREE.MeshStandardMaterial({
-        color: 0xa8a8a8,
-        metalness: 0.75,
-        roughness: 0.32,
+        color: 0xc0c8d4,
+        metalness: 0.85,
+        roughness: 0.22,
       })
     );
     din.position.set(-EMPTY_RIGHT / 2, -0.18, 0.2);
@@ -294,11 +316,11 @@ export class PanelScene {
 
     // Прозоре димчасте скло ПЕРЕД автоматами (Standard — стабільно на iOS)
     const doorMat = new THREE.MeshStandardMaterial({
-      color: 0x1e2836,
-      roughness: 0.1,
-      metalness: 0.08,
+      color: 0x254060,
+      roughness: 0.08,
+      metalness: 0.12,
       transparent: true,
-      opacity: 0.58,
+      opacity: 0.48,
       depthWrite: true,
     });
 
@@ -376,14 +398,14 @@ export class PanelScene {
     this.boxW = boxW;
   }
 
-  _makeBody(width, height, depth, color = 0xf8f6f3) {
+  _makeBody(width, height, depth, color = 0xfffdf8) {
     const group = new THREE.Group();
     const body = new THREE.Mesh(
       new THREE.BoxGeometry(width * 0.97, height, depth),
       new THREE.MeshStandardMaterial({
         color,
-        roughness: 0.4,
-        metalness: 0.04,
+        roughness: 0.32,
+        metalness: 0.06,
       })
     );
     body.castShadow = true;
@@ -392,8 +414,8 @@ export class PanelScene {
 
     // Top / bottom terminal notches
     const notchMat = new THREE.MeshStandardMaterial({
-      color: 0xd8d6d2,
-      roughness: 0.55,
+      color: 0xc8d0da,
+      roughness: 0.5,
     });
     for (const y of [height * 0.42, -height * 0.42]) {
       const notch = new THREE.Mesh(
@@ -410,7 +432,7 @@ export class PanelScene {
     const group = new THREE.Group();
     const housing = new THREE.Mesh(
       new THREE.BoxGeometry(0.085, 0.2, 0.07),
-      new THREE.MeshStandardMaterial({ color: 0xf0eeea, roughness: 0.42 })
+      new THREE.MeshStandardMaterial({ color: 0xfff8f0, roughness: 0.35 })
     );
     group.add(housing);
 
@@ -418,8 +440,10 @@ export class PanelScene {
       new THREE.BoxGeometry(0.058, 0.18, 0.045),
       new THREE.MeshStandardMaterial({
         color,
-        roughness: 0.32,
-        metalness: 0.12,
+        roughness: 0.28,
+        metalness: 0.18,
+        emissive: color,
+        emissiveIntensity: 0.12,
       })
     );
     lever.position.y = isOn ? 0.09 : -0.09;
@@ -432,8 +456,10 @@ export class PanelScene {
       new THREE.BoxGeometry(0.058, 0.035, 0.05),
       new THREE.MeshStandardMaterial({
         color,
-        roughness: 0.28,
-        metalness: 0.15,
+        roughness: 0.22,
+        metalness: 0.2,
+        emissive: color,
+        emissiveIntensity: 0.18,
       })
     );
     tip.position.y = isOn ? 0.17 : -0.17;
@@ -486,37 +512,37 @@ export class PanelScene {
 
     // Green Schneider brand strip
     const strip = new THREE.Mesh(
-      new THREE.BoxGeometry(width * 0.9, 0.07, 0.01),
+      new THREE.BoxGeometry(width * 0.9, 0.08, 0.012),
       new THREE.MeshStandardMaterial({
-        color: 0x22c33a,
-        roughness: 0.4,
-        metalness: 0.08,
-        emissive: 0x0a4010,
-        emissiveIntensity: 0.15,
+        color: 0x19d64a,
+        roughness: 0.32,
+        metalness: 0.1,
+        emissive: 0x0d8028,
+        emissiveIntensity: 0.35,
       })
     );
     strip.position.set(0, 0.38, MCB_D / 2 + 0.01);
     group.add(strip);
 
-    const toggle = this._makeToggle(0xff5a00, data.isOn);
+    const toggle = this._makeToggle(0xff6200, data.isOn);
     toggle.position.set(0, 0.08, MCB_D / 2 + 0.01);
     group.add(toggle);
 
-    const brand = this._makeLabelSprite("Schneider", 0.15, "#1a1a1a", 24);
+    const brand = this._makeLabelSprite("Schneider", 0.15, "#0b5c2a", 24);
     brand.position.set(0, 0.3, MCB_D / 2 + 0.025);
     group.add(brand);
 
-    const model = this._makeLabelSprite("BA63", 0.12, "#444444", 22);
+    const model = this._makeLabelSprite("BA63", 0.12, "#2a4a6a", 22);
     model.position.set(0, -0.22, MCB_D / 2 + 0.025);
     group.add(model);
 
-    const rating = this._makeLabelSprite("C25", 0.13, "#111111", 26);
+    const rating = this._makeLabelSprite("C25", 0.13, "#c43a00", 26);
     rating.position.set(0, -0.36, MCB_D / 2 + 0.025);
     group.add(rating);
 
     // Handwritten label above 8th breaker (index 7)
     if (index === 7) {
-      const note = this._makeLabelSprite("СВ-WIFI", 0.17, "#111111", 26);
+      const note = this._makeLabelSprite("СВ-WIFI", 0.17, "#0a3d8f", 26);
       note.position.set(0, 0.48, MCB_D / 2 + 0.03);
       group.add(note);
     }
@@ -527,12 +553,24 @@ export class PanelScene {
   }
 
   _makeRelay(data, width) {
-    const group = this._makeBody(width, MCB_H, MCB_D, 0xf5f3f0);
+    const group = this._makeBody(width, MCB_H, MCB_D, 0xfff5ee);
+
+    // Accent side stripe
+    const accent = new THREE.Mesh(
+      new THREE.BoxGeometry(0.03, MCB_H * 0.9, 0.01),
+      new THREE.MeshStandardMaterial({
+        color: 0xe53935,
+        emissive: 0x881818,
+        emissiveIntensity: 0.25,
+      })
+    );
+    accent.position.set(-width * 0.42, 0, MCB_D / 2 + 0.01);
+    group.add(accent);
 
     // Black display bezel
     const bezel = new THREE.Mesh(
       new THREE.BoxGeometry(width * 0.58, 0.28, 0.04),
-      new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.35 })
+      new THREE.MeshStandardMaterial({ color: 0x1a0a0a, roughness: 0.3 })
     );
     bezel.position.set(-0.05, 0.14, MCB_D / 2 + 0.01);
     group.add(bezel);
@@ -540,10 +578,10 @@ export class PanelScene {
     const screen = new THREE.Mesh(
       new THREE.PlaneGeometry(width * 0.5, 0.2),
       new THREE.MeshStandardMaterial({
-        color: 0x2a0505,
-        emissive: 0xff1e1e,
-        emissiveIntensity: 0.95,
-        roughness: 0.25,
+        color: 0x3a0808,
+        emissive: 0xff2a2a,
+        emissiveIntensity: 1.25,
+        roughness: 0.2,
       })
     );
     screen.position.set(-0.05, 0.14, MCB_D / 2 + 0.032);
@@ -552,7 +590,7 @@ export class PanelScene {
     const voltage = this._makeLabelSprite(
       String(data.voltage ?? 239),
       0.3,
-      "#ff4444",
+      "#ff6666",
       36
     );
     voltage.position.set(-0.05, 0.14, MCB_D / 2 + 0.05);
@@ -578,21 +616,32 @@ export class PanelScene {
 
     // Status LEDs
     const ledG = new THREE.Mesh(
-      new THREE.CircleGeometry(0.012, 12),
+      new THREE.CircleGeometry(0.014, 12),
       new THREE.MeshStandardMaterial({
-        color: 0x22cc44,
-        emissive: 0x11aa33,
-        emissiveIntensity: 0.8,
+        color: 0x2dff6a,
+        emissive: 0x00cc44,
+        emissiveIntensity: 1.2,
       })
     );
     ledG.position.set(width * 0.12, 0.32, MCB_D / 2 + 0.02);
     group.add(ledG);
 
-    const brand = this._makeLabelSprite("ZUBR D40", 0.24, "#222222", 26);
+    const ledR = new THREE.Mesh(
+      new THREE.CircleGeometry(0.012, 12),
+      new THREE.MeshStandardMaterial({
+        color: 0xffaa33,
+        emissive: 0xff8800,
+        emissiveIntensity: 0.7,
+      })
+    );
+    ledR.position.set(width * 0.12, 0.26, MCB_D / 2 + 0.02);
+    group.add(ledR);
+
+    const brand = this._makeLabelSprite("ZUBR D40", 0.24, "#b71c1c", 26);
     brand.position.set(0, -0.28, MCB_D / 2 + 0.025);
     group.add(brand);
 
-    const sub = this._makeLabelSprite("40A · 8800VA", 0.18, "#555555", 20);
+    const sub = this._makeLabelSprite("40A · 8800VA", 0.18, "#5a3a20", 20);
     sub.position.set(0, -0.38, MCB_D / 2 + 0.025);
     group.add(sub);
 
@@ -602,13 +651,25 @@ export class PanelScene {
   }
 
   _makeRcd(data, width) {
-    const group = this._makeBody(width, MCB_H, MCB_D);
+    const group = this._makeBody(width, MCB_H, MCB_D, 0xf8fbff);
 
-    const brandTop = this._makeLabelSprite("IEK", 0.16, "#1a1a1a", 26);
-    brandTop.position.set(0, 0.36, MCB_D / 2 + 0.025);
+    // Blue IEK accent bar
+    const bar = new THREE.Mesh(
+      new THREE.BoxGeometry(width * 0.9, 0.06, 0.012),
+      new THREE.MeshStandardMaterial({
+        color: 0x1565c0,
+        emissive: 0x0d47a1,
+        emissiveIntensity: 0.3,
+      })
+    );
+    bar.position.set(0, 0.4, MCB_D / 2 + 0.01);
+    group.add(bar);
+
+    const brandTop = this._makeLabelSprite("IEK", 0.16, "#0d47a1", 26);
+    brandTop.position.set(0, 0.32, MCB_D / 2 + 0.025);
     group.add(brandTop);
 
-    const toggle = this._makeToggle(0xffd000, data.isOn);
+    const toggle = this._makeToggle(0xffe000, data.isOn);
     toggle.position.set(0, 0.12, MCB_D / 2 + 0.01);
     group.add(toggle);
 

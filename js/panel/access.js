@@ -1,4 +1,4 @@
-import { ACCESS_KEY_HASH } from "./panel-data.js?v=7";
+import { ACCESS_KEY_HASH } from "./panel-data.js?v=8";
 
 const STORAGE_KEY = "rubilnik_access";
 
