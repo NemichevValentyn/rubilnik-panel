@@ -1,6 +1,6 @@
 import * as THREE from "../../lib/three/three.module.js";
 import { OrbitControls } from "../../lib/three/controls/OrbitControls.js";
-import { BREAKERS, PANEL_INFO } from "./panel-data.js?v=8";
+import { BREAKERS, PANEL_INFO } from "./panel-data.js?v=9";
 
 const MCB_W = 0.175;
 const MCB_H = 0.92;
@@ -67,7 +67,7 @@ export class PanelScene {
       powerPreference: "high-performance",
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    this.renderer.setClearColor(0xe8f0f4, 1);
+    this.renderer.setClearColor(0xece6db, 1);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -78,16 +78,67 @@ export class PanelScene {
     this.camera.position.set(0.05, 0.05, CAM_Z_CLOSED);
   }
 
+  _makeWallpaperTexture() {
+    const c = document.createElement("canvas");
+    c.width = 512;
+    c.height = 512;
+    const ctx = c.getContext("2d");
+
+    // Light warm base (off-white wallpaper)
+    const g = ctx.createLinearGradient(0, 0, 0, 512);
+    g.addColorStop(0, "#f7f3eb");
+    g.addColorStop(0.5, "#f3eee4");
+    g.addColorStop(1, "#efe8dc");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Subtle vertical stripe wallpaper pattern
+    for (let x = 0; x < 512; x += 28) {
+      ctx.fillStyle = "rgba(210, 195, 170, 0.14)";
+      ctx.fillRect(x, 0, 10, 512);
+      ctx.fillStyle = "rgba(255, 252, 245, 0.18)";
+      ctx.fillRect(x + 10, 0, 4, 512);
+    }
+
+    // Soft paper grain
+    for (let i = 0; i < 4200; i++) {
+      const x = Math.random() * 512;
+      const y = Math.random() * 512;
+      const a = 0.015 + Math.random() * 0.03;
+      ctx.fillStyle = `rgba(160, 140, 110, ${a})`;
+      ctx.fillRect(x, y, 1.2, 1.2);
+    }
+
+    // Faint damask-like dots
+    ctx.fillStyle = "rgba(190, 175, 150, 0.08)";
+    for (let y = 24; y < 512; y += 48) {
+      for (let x = 24; x < 512; x += 48) {
+        ctx.beginPath();
+        ctx.arc(x + ((y / 48) % 2) * 12, y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(3.2, 2.1);
+    return tex;
+  }
+
   _initScene() {
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0xe8f0f4, 14, 26);
-    this.scene.background = new THREE.Color(0xe8f0f4);
+    this.scene.fog = new THREE.Fog(0xece6db, 14, 26);
+    this.scene.background = new THREE.Color(0xece6db);
 
+    const wallpaper = this._makeWallpaperTexture();
     const wall = new THREE.Mesh(
       new THREE.PlaneGeometry(16, 10),
       new THREE.MeshStandardMaterial({
-        color: 0xfff6ec,
-        roughness: 0.9,
+        map: wallpaper,
+        color: 0xffffff,
+        roughness: 0.92,
         metalness: 0.02,
       })
     );
@@ -99,11 +150,11 @@ export class PanelScene {
     const wash = new THREE.Mesh(
       new THREE.PlaneGeometry(10, 4),
       new THREE.MeshStandardMaterial({
-        color: 0xd4e8f0,
+        color: 0xd8cfc0,
         roughness: 1,
         metalness: 0,
         transparent: true,
-        opacity: 0.35,
+        opacity: 0.28,
       })
     );
     wash.rotation.x = -Math.PI / 2;
@@ -168,14 +219,16 @@ export class PanelScene {
     const boxH = 1.85;
     const boxD = 0.78;
 
+    // Теплий «молочний» білий корпусу — гарно на світлих шпалерах
     const plastic = new THREE.MeshStandardMaterial({
-      color: 0xfffaf4,
-      roughness: 0.38,
-      metalness: 0.06,
+      color: 0xfaf6f0,
+      roughness: 0.34,
+      metalness: 0.05,
     });
+    // Внутрішня ніша — трохи холодніший білий, щоб був об’єм
     const plasticInner = new THREE.MeshStandardMaterial({
-      color: 0xe8eef5,
-      roughness: 0.55,
+      color: 0xf2f4f7,
+      roughness: 0.5,
       metalness: 0.04,
     });
 
@@ -210,9 +263,9 @@ export class PanelScene {
 
     // Inner lip around recess
     const lipMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.32,
-      metalness: 0.08,
+      color: 0xfffcf7,
+      roughness: 0.28,
+      metalness: 0.07,
     });
     const lip = new THREE.Mesh(
       new THREE.BoxGeometry(boxW - 0.14, boxH - 0.18, 0.06),

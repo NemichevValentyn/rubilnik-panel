@@ -1,4 +1,4 @@
-import { hasAccess, panelUrlWithKey, panelPageHref } from "./access.js?v=8";
+import { hasAccess, panelUrlWithKey, panelPageHref } from "./access.js?v=9";
 
 const lockScreen = document.getElementById("lock-screen");
 const qrPage = document.getElementById("qr-page");
