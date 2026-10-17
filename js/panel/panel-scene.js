@@ -1,6 +1,6 @@
 import * as THREE from "../../lib/three/three.module.js";
 import { OrbitControls } from "../../lib/three/controls/OrbitControls.js";
-import { BREAKERS, PANEL_INFO } from "./panel-data.js?v=6";
+import { BREAKERS, PANEL_INFO } from "./panel-data.js?v=7";
 
 const MCB_W = 0.175;
 const MCB_H = 0.92;
@@ -282,23 +282,24 @@ export class PanelScene {
 
     // Door hinged on left — z попереду автоматів (0.2 + 0.29 ≈ 0.49)
     this.doorPivot = new THREE.Group();
-    this.doorPivot.position.set(-boxW / 2 + 0.04, 0, 0.72);
+    // z має бути більшим за передню грань автоматів (≈0.2+0.29), інакше скло «під» ними
+    this.doorPivot.position.set(-boxW / 2 + 0.04, 0, 0.88);
     this.doorPivot.renderOrder = 20;
     this.root.add(this.doorPivot);
 
     const doorW = boxW - 0.08;
     const doorH = boxH - 0.1;
-    const doorGeo = new THREE.BoxGeometry(doorW, doorH, 0.03);
+    const doorGeo = new THREE.BoxGeometry(doorW, doorH, 0.028);
     doorGeo.translate(doorW / 2, 0, 0);
 
-    // Прозоре «димчасте» скло, але ЗАВЖДИ перед автоматами (renderOrder + z)
+    // Прозоре димчасте скло ПЕРЕД автоматами (Standard — стабільно на iOS)
     const doorMat = new THREE.MeshStandardMaterial({
-      color: 0x3a4658,
-      roughness: 0.12,
-      metalness: 0.15,
+      color: 0x1e2836,
+      roughness: 0.1,
+      metalness: 0.08,
       transparent: true,
-      opacity: 0.42,
-      depthWrite: false,
+      opacity: 0.58,
+      depthWrite: true,
     });
 
     this.door = new THREE.Mesh(doorGeo, doorMat);
@@ -454,9 +455,15 @@ export class PanelScene {
     ctx.fillText(text, 128, 32);
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+    const mat = new THREE.SpriteMaterial({
+      map: tex,
+      transparent: true,
+      depthTest: true,
+      depthWrite: false,
+    });
     const sprite = new THREE.Sprite(mat);
     sprite.scale.set(scale, scale * 0.25, 1);
+    sprite.renderOrder = 2;
     return sprite;
   }
 
