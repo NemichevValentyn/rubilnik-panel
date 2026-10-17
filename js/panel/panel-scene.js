@@ -1,6 +1,6 @@
 import * as THREE from "../../lib/three/three.module.js";
 import { OrbitControls } from "../../lib/three/controls/OrbitControls.js";
-import { BREAKERS, PANEL_INFO } from "./panel-data.js?v=9";
+import { BREAKERS, PANEL_INFO } from "./panel-data.js?v=10";
 
 const MCB_W = 0.175;
 const MCB_H = 0.92;
@@ -67,7 +67,7 @@ export class PanelScene {
       powerPreference: "high-performance",
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    this.renderer.setClearColor(0xece6db, 1);
+    this.renderer.setClearColor(0xe6dcc8, 1);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -84,81 +84,81 @@ export class PanelScene {
     c.height = 512;
     const ctx = c.getContext("2d");
 
-    // Light warm base (off-white wallpaper)
-    const g = ctx.createLinearGradient(0, 0, 0, 512);
-    g.addColorStop(0, "#f7f3eb");
-    g.addColorStop(0.5, "#f3eee4");
-    g.addColorStop(1, "#efe8dc");
-    ctx.fillStyle = g;
+    // Явно світло-бежеві шпалери (добре видно навіть на телефоні)
+    ctx.fillStyle = "#f3e9d8";
     ctx.fillRect(0, 0, 512, 512);
 
-    // Subtle vertical stripe wallpaper pattern
-    for (let x = 0; x < 512; x += 28) {
-      ctx.fillStyle = "rgba(210, 195, 170, 0.14)";
-      ctx.fillRect(x, 0, 10, 512);
-      ctx.fillStyle = "rgba(255, 252, 245, 0.18)";
-      ctx.fillRect(x + 10, 0, 4, 512);
+    // Вертикальні смуги
+    for (let x = 0; x < 512; x += 36) {
+      ctx.fillStyle = "#e8d8c0";
+      ctx.fillRect(x, 0, 18, 512);
+      ctx.fillStyle = "#faf3e6";
+      ctx.fillRect(x + 18, 0, 6, 512);
     }
 
-    // Soft paper grain
-    for (let i = 0; i < 4200; i++) {
-      const x = Math.random() * 512;
-      const y = Math.random() * 512;
-      const a = 0.015 + Math.random() * 0.03;
-      ctx.fillStyle = `rgba(160, 140, 110, ${a})`;
-      ctx.fillRect(x, y, 1.2, 1.2);
-    }
-
-    // Faint damask-like dots
-    ctx.fillStyle = "rgba(190, 175, 150, 0.08)";
-    for (let y = 24; y < 512; y += 48) {
-      for (let x = 24; x < 512; x += 48) {
+    // Дрібний візерунок «ромбики»
+    ctx.strokeStyle = "rgba(170, 145, 110, 0.28)";
+    ctx.lineWidth = 1.5;
+    for (let y = 20; y < 512; y += 40) {
+      for (let x = 20; x < 512; x += 40) {
+        const ox = x + ((y / 40) % 2) * 20;
         ctx.beginPath();
-        ctx.arc(x + ((y / 48) % 2) * 12, y, 3.5, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.moveTo(ox, y - 6);
+        ctx.lineTo(ox + 6, y);
+        ctx.lineTo(ox, y + 6);
+        ctx.lineTo(ox - 6, y);
+        ctx.closePath();
+        ctx.stroke();
       }
+    }
+
+    // Зерно паперу
+    for (let i = 0; i < 6000; i++) {
+      ctx.fillStyle = `rgba(140, 120, 90, ${0.03 + Math.random() * 0.05})`;
+      ctx.fillRect(Math.random() * 512, Math.random() * 512, 1.5, 1.5);
     }
 
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.wrapS = THREE.RepeatWrapping;
     tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(3.2, 2.1);
+    tex.repeat.set(2.6, 1.7);
+    tex.needsUpdate = true;
     return tex;
   }
 
   _initScene() {
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0xece6db, 14, 26);
-    this.scene.background = new THREE.Color(0xece6db);
+    this.scene.fog = new THREE.Fog(0xe6dcc8, 16, 28);
+    this.scene.background = new THREE.Color(0xe6dcc8);
 
     const wallpaper = this._makeWallpaperTexture();
     const wall = new THREE.Mesh(
-      new THREE.PlaneGeometry(16, 10),
+      new THREE.PlaneGeometry(18, 12),
       new THREE.MeshStandardMaterial({
         map: wallpaper,
         color: 0xffffff,
-        roughness: 0.92,
-        metalness: 0.02,
+        roughness: 0.88,
+        metalness: 0.01,
       })
     );
     wall.position.z = -0.62;
     wall.receiveShadow = true;
     this.scene.add(wall);
 
-    // Soft colored floor wash
+    // Soft floor wash
     const wash = new THREE.Mesh(
-      new THREE.PlaneGeometry(10, 4),
+      new THREE.PlaneGeometry(12, 5),
       new THREE.MeshStandardMaterial({
-        color: 0xd8cfc0,
+        color: 0xcfc2ae,
         roughness: 1,
         metalness: 0,
         transparent: true,
-        opacity: 0.28,
+        opacity: 0.35,
       })
     );
     wash.rotation.x = -Math.PI / 2;
-    wash.position.set(0, -1.6, 1.2);
+    wash.position.set(0, -1.7, 1.3);
     this.scene.add(wash);
   }
 
@@ -219,17 +219,17 @@ export class PanelScene {
     const boxH = 1.85;
     const boxD = 0.78;
 
-    // Теплий «молочний» білий корпусу — гарно на світлих шпалерах
+    // Чистий холоднуватий білий корпусу (контраст до бежевих шпалер)
     const plastic = new THREE.MeshStandardMaterial({
-      color: 0xfaf6f0,
-      roughness: 0.34,
-      metalness: 0.05,
+      color: 0xf7f9fc,
+      roughness: 0.28,
+      metalness: 0.08,
     });
-    // Внутрішня ніша — трохи холодніший білий, щоб був об’єм
+    // Внутрішня ніша — трохи сіро-блакитний білий
     const plasticInner = new THREE.MeshStandardMaterial({
-      color: 0xf2f4f7,
-      roughness: 0.5,
-      metalness: 0.04,
+      color: 0xeef2f7,
+      roughness: 0.45,
+      metalness: 0.05,
     });
 
     // Outer housing
@@ -263,9 +263,9 @@ export class PanelScene {
 
     // Inner lip around recess
     const lipMat = new THREE.MeshStandardMaterial({
-      color: 0xfffcf7,
-      roughness: 0.28,
-      metalness: 0.07,
+      color: 0xffffff,
+      roughness: 0.22,
+      metalness: 0.1,
     });
     const lip = new THREE.Mesh(
       new THREE.BoxGeometry(boxW - 0.14, boxH - 0.18, 0.06),
@@ -369,11 +369,11 @@ export class PanelScene {
 
     // Прозоре димчасте скло ПЕРЕД автоматами (Standard — стабільно на iOS)
     const doorMat = new THREE.MeshStandardMaterial({
-      color: 0x254060,
+      color: 0x3a5570,
       roughness: 0.08,
-      metalness: 0.12,
+      metalness: 0.1,
       transparent: true,
-      opacity: 0.48,
+      opacity: 0.38,
       depthWrite: true,
     });
 
@@ -385,9 +385,9 @@ export class PanelScene {
     this.doorPickables.push(this.door);
 
     const rimMat = new THREE.MeshStandardMaterial({
-      color: 0xfaf6f0,
-      roughness: 0.32,
-      metalness: 0.06,
+      color: 0xf7f9fc,
+      roughness: 0.26,
+      metalness: 0.08,
     });
     const rimT = 0.07;
     const topRim = new THREE.Mesh(

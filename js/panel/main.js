@@ -2,10 +2,10 @@ import {
   PANEL_INFO,
   ENCRYPTED_BREAKERS,
   setBreakers,
-} from "./panel-data.js?v=9";
-import { hasAccess, qrPageHref, getGrantedKey } from "./access.js?v=9";
-import { decryptBreakers } from "./crypto.js?v=9";
-import { PanelScene } from "./panel-scene.js?v=9";
+} from "./panel-data.js?v=10";
+import { hasAccess, qrPageHref, getGrantedKey } from "./access.js?v=10";
+import { decryptBreakers } from "./crypto.js?v=10";
+import { PanelScene } from "./panel-scene.js?v=10";
 
 const lockScreen = document.getElementById("lock-screen");
 const appRoot =
