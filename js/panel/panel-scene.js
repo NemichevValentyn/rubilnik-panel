@@ -385,9 +385,9 @@ export class PanelScene {
     this.doorPickables.push(this.door);
 
     const rimMat = new THREE.MeshStandardMaterial({
-      color: 0xf3f1ed,
-      roughness: 0.38,
-      metalness: 0.05,
+      color: 0xfaf6f0,
+      roughness: 0.32,
+      metalness: 0.06,
     });
     const rimT = 0.07;
     const topRim = new THREE.Mesh(
